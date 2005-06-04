@@ -24,9 +24,6 @@ Source1:	ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/Cyberbase.
 Source2:	ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/CyberCJK.ZIP
 # NoSource2-md5: 63a6f607ac5a78d34b67247b893faf5b
 Source3:	%{base_name}-licence.txt
-NoSource:	0
-NoSource:	1
-NoSource:	2
 BuildRequires:	unzip
 Requires:	%{_fontsdir}/TTF
 Requires(post,postun):	fontpostinst
