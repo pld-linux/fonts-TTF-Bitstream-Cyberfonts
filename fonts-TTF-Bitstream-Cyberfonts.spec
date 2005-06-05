@@ -1,7 +1,6 @@
 #
 # Conditional build:
-%bcond_with	license_agreement
-# _with_license_agreement       - generates package (may require Windows license?)
+%bcond_with	license_agreement	# generates package
 #
 Summary:	Bitstream Cyberfonts True Type font
 Summary(pl):	Font True Type Cyberfonts firmy Bitstream
