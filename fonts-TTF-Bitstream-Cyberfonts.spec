@@ -11,7 +11,7 @@ Name:		%{base_name}
 Name:		%{base_name}-installer
 %endif
 Version:	1.0
-Release:	1%{?with_license_agreement:wla}
+Release:	2%{?with_license_agreement:wla}
 License:	Nondistributable but free (See Bitstream-Cyberfonts-licence.txt)
 Group:		Fonts
 %if %{with license_agreement}
@@ -22,11 +22,15 @@ Source1:	ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/Cyberbase.
 # NoSource1-md5: 63a6f607ac5a78d34b67247b893faf5b
 Source2:	ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/CyberCJK.ZIP
 # NoSource2-md5: 63a6f607ac5a78d34b67247b893faf5b
-Source3:	%{base_name}-licence.txt
 BuildRequires:	unzip
+# we need the -installer package as otherwise can't make end-user
+# package to work. see also comments in %%prep section.
+BuildRequires:	%{base_name}-installer
 Requires:	%{_fontsdir}/TTF
 Requires(post,postun):	fontpostinst
 %else
+Source0:	license-installer.sh
+Source1:	%{base_name}-licence.txt
 Requires:	unzip
 Requires:	rpm-build-tools
 Requires:	wget
@@ -38,25 +42,23 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Bitstream Cyberfonts True Type font.
-%if ! %{with license_agreement}
+%if %{without license_agreement}
 License issues made us not to include inherent files into this package
 by default. If you want to
 create full working package please build it with one of the following
 command:
 
 %{base_name}.install --with license_agreement %{_datadir}/%{base_name}/%{base_name}.spec
-%{base_name}.install --with license_agreement ftp://ftp.pld-linux.org/dists/ac/PLD/<your_arch>/PLD/RPMS/%{base_name}-{version}-{release}.src.rpm
 %endif
 
 %description -l pl
 Font True Type Cyberfonts firmy Bitstream.
-%if ! %{with license_agreement}
+%if %{without license_agreement}
 Kwestie licencji zmusi³y nas do niedo³±czania do tego pakietu istotnych
 plików. Je¶li chcesz stworzyæ
 w pe³ni funkcjonalny pakiet, zbuduj go za pomoc± polecenia:
 
 %{base_name}.install --with license_agreement %{_datadir}/%{base_name}/%{base_name}.spec
-%{base_name}.install --with license_agreement ftp://ftp.pld-linux.org/dists/ac/PLD/<your_arch>/PLD/RPMS/%{base_name}-{version}-{release}.src.rpm
 %endif
 
 %prep
@@ -65,76 +67,31 @@ w pe³ni funkcjonalny pakiet, zbuduj go za pomoc± polecenia:
 /usr/bin/unzip -L %{SOURCE0}
 /usr/bin/unzip -L %{SOURCE1}
 /usr/bin/unzip -L %{SOURCE2}
-install %{SOURCE3} ./
+# ugly hack, to work with -installer package, when it may not fetch this file
+# from CVS with builder (-nc, -ncs)
+install %{_datadir}/%{base_name}/Bitstream-Cyberfonts-licence.txt .
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%if ! %{with license_agreement}
+%if %{without license_agreement}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_datadir}/%{base_name}}
 
-cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/%{base_name}.install
-#!/bin/sh
-if [ "\$1" = "--with" -a "\$2" = "license_agreement" ]
-then
-	TMPDIR=\`rpm --eval "%%{tmpdir}"\`; export TMPDIR
-	SPECDIR=\`rpm --eval "%%{_specdir}"\`; export SPECDIR
-	SRPMDIR=\`rpm --eval "%%{_srcrpmdir}"\`; export SRPMDIR
-	SOURCEDIR=\`rpm --eval "%%{_sourcedir}"\`; export SOURCEDIR
-	BUILDDIR=\`rpm --eval "%%{_builddir}"\`; export BUILDDIR
-	RPMDIR=\`rpm --eval "%%{_rpmdir}"\`; export RPMDIR
-	BACKUP_SPEC=0
-	mkdir -p \$TMPDIR \$SPECDIR \$SRPMDIR \$RPMDIR \$SRPMDIR \$SOURCEDIR \$BUILDDIR
-	if [ -f \$SPECDIR/%{base_name}.spec ]; then
-		BACKUP_SPEC=1
-		mv -f \$SPECDIR/%{base_name}.spec \$SPECDIR/%{base_name}.spec.prev
-	fi
-	if echo "\$3" | grep '\.src\.rpm$' >/dev/null; then
-		( cd \$SRPMDIR
-		if echo "\$3" | grep '://' >/dev/null; then
-			wget --passive-ftp -t0 "\$3"
-		else
-			cp -f "\$3" .
-		fi
-		rpm2cpio \`basename "\$3"\` | ( cd \$TMPDIR; cpio -i %{base_name}.spec ) )
-		if ! cp -i \$TMPDIR/%{base_name}.spec \$SPECDIR/%{base_name}.spec; then
-			exit 1
-		fi
-	else
-		if ! cp -i "\$3" \$SPECDIR; then
-			exit 1
-		fi
-	fi
-	( cd \$SPECDIR
-	%{_bindir}/builder -nc -ncs --with license_agreement --opts --target=%{_target_cpu} %{base_name}.spec
-	if [ "\$?" -ne 0 ]; then
-		exit 2
-	fi
-	RPMNAME=%{base_name}-%{version}-%{release}wla.noarch.rpm
-	rpm -U \$RPMDIR/\$RPMNAME || \
-		echo -e Install manually the file:\\\n   \$RPMDIR/\$RPMNAME )
-	if [ "\$BACKUP_SPEC" -eq 1 ]; then
-		mv -f \$SPECDIR/%{base_name}.spec.prev \$SPECDIR/%{base_name}.spec
-	fi
-else
-	cat %{_datadir}/%{base_name}/Microsot-EULA.txt
-	echo "
-License issues made us not to include inherent files into this package
-by default. If you want to
-create full working package please build it with the following command:
-
-\$0 --with license_agreement %{_datadir}/%{base_name}/%{base_name}.spec
-"
-fi
-EOF
+sed -e '
+	s/@BASE_NAME@/%{base_name}/g
+	s/@TARGET_CPU@/%{_target_cpu}/g
+	s-@VERSION@-%{version}-g
+	s-@RELEASE@-%{release}-g
+	s,@SPECFILE@,%{_datadir}/%{base_name}/%{base_name}.spec,g
+	s,@LICENSE@,%{_datadir}/%{base_name}/Bitstream-Cyberfonts-licence.txt,
+' %{SOURCE0} > $RPM_BUILD_ROOT%{_bindir}/%{base_name}.install
 
 install %{_specdir}/%{base_name}.spec $RPM_BUILD_ROOT%{_datadir}/%{base_name}
+install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/%{base_name}/Bitstream-Cyberfonts-licence.txt
 %else
 install -d $RPM_BUILD_ROOT%{ttffontsdir}
 install *.ttf $RPM_BUILD_ROOT%{ttffontsdir}
 %endif
-install -d $RPM_BUILD_ROOT%{_datadir}/%{base_name}
-install %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/%{base_name}/Bitstream-Cyberfonts-licence.txt
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -161,8 +118,9 @@ following command:
 %files
 %defattr(644,root,root,755)
 %if %{with license_agreement}
+%doc Bitstream-Cyberfonts-licence.txt
 %{ttffontsdir}/*
 %else
 %attr(755,root,root) %{_bindir}/%{base_name}.install
-%endif
 %{_datadir}/%{base_name}
+%endif
