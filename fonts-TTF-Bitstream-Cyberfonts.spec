@@ -3,7 +3,7 @@
 %bcond_with	license_agreement	# generates package
 #
 Summary:	Bitstream Cyberfonts True Type font
-Summary(pl.UTF-8):   Font True Type Cyberfonts firmy Bitstream
+Summary(pl.UTF-8):	Font True Type Cyberfonts firmy Bitstream
 %define		base_name		fonts-TTF-Bitstream-Cyberfonts
 %if %{with license_agreement}
 Name:		%{base_name}
