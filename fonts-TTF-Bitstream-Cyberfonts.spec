@@ -2,8 +2,8 @@
 # Conditional build:
 %bcond_with	license_agreement	# generates package
 #
-Summary:	Bitstream Cyberfonts True Type font
-Summary(pl.UTF-8):	Font True Type Cyberfonts firmy Bitstream
+Summary:	Bitstream Cyberfonts TrueType font
+Summary(pl.UTF-8):	Font TrueType Cyberfonts firmy Bitstream
 %define		base_name		fonts-TTF-Bitstream-Cyberfonts
 %if %{with license_agreement}
 Name:		%{base_name}
@@ -41,7 +41,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		ttffontsdir	%{_fontsdir}/TTF
 
 %description
-Bitstream Cyberfonts True Type font.
+Bitstream Cyberfonts TrueType font.
 %if !%{with license_agreement}
 License issues made us not to include inherent files into this package
 by default. If you want to
@@ -52,7 +52,7 @@ command:
 %endif
 
 %description -l pl.UTF-8
-Font True Type Cyberfonts firmy Bitstream.
+Font TrueType Cyberfonts firmy Bitstream.
 %if !%{with license_agreement}
 Kwestie licencji zmusiły nas do niedołączania do tego pakietu istotnych
 plików. Jeśli chcesz stworzyć
