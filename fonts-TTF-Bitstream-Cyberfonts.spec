@@ -2,16 +2,17 @@
 # Conditional build:
 %bcond_with	license_agreement	# generates package
 #
+%define		base_name		fonts-TTF-Bitstream-Cyberfonts
+%define		rel			3
 Summary:	Bitstream Cyberfonts TrueType font
 Summary(pl.UTF-8):	Font TrueType Cyberfonts firmy Bitstream
-%define		base_name		fonts-TTF-Bitstream-Cyberfonts
 %if %{with license_agreement}
 Name:		%{base_name}
 %else
 Name:		%{base_name}-installer
 %endif
 Version:	1.0
-Release:	3%{?with_license_agreement:wla}
+Release:	%{rel}%{?with_license_agreement:wla}
 License:	Nondistributable but free (See Bitstream-Cyberfonts-licence.txt)
 Group:		Fonts
 %if %{with license_agreement}
