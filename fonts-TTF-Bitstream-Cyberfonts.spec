@@ -1,3 +1,6 @@
+# TODO:
+# - update license-installer.sh and apropriate deps.
+# - move SourceN outside if block, it doesn't work with builder.
 #
 # Conditional build:
 %bcond_with	license_agreement	# generates package
