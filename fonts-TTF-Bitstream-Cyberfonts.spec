@@ -27,15 +27,15 @@ BuildRequires:	unzip
 # we need the -installer package as otherwise can't make end-user
 # package to work. see also comments in %%prep section.
 BuildRequires:	%{base_name}-installer
-Requires:	%{_fontsdir}/TTF
 Requires(post,postun):	fontpostinst
+Requires:	%{_fontsdir}/TTF
 %else
 Source0:	http://svn.pld-linux.org/svn/license-installer/license-installer.sh
 # NoSource0-md5:	329c25f457fea66ec502b7ef70cb9ede
 Source1:	%{base_name}-licence.txt
-Requires:	unzip
-Requires:	rpm-build-macros >= 1.544
 Requires:	rpm-build-tools >= 4.4.37
+Requires:	rpmbuild(macros) >= 1.544
+Requires:	unzip
 %endif
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
